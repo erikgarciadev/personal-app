@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { InfiniteScrollCustomEvent, Platform } from '@ionic/angular';
 import { Weight } from 'src/app/models/weight.model';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { WeightService } from 'src/app/services/weight.service';
 import { AddUpdateWeightComponent } from 'src/app/shared/components/add-update-weight/add-update-weight.component';
 import { COLLECTIONS } from 'src/app/utils/constants';
 
@@ -14,9 +16,15 @@ export class WeightsPage implements OnInit {
   weights: Weight[] = [];
 
   loading = false;
+  limit = 10;
+  disable_next = false;
+
+  lastInResponse: any;
   constructor(
     private firebaseSvc: FirebaseService,
-    private utilsSvc: UtilsService
+    private utilsSvc: UtilsService,
+    private weightSvc: WeightService,
+    private platform: Platform
   ) {}
 
   ngOnInit() {}
@@ -26,20 +34,80 @@ export class WeightsPage implements OnInit {
   }
 
   getWeights() {
-    let collection = COLLECTIONS.WEIGHTS;
+    const wrapper_height = this.platform.height();
+    const wrapper_width = this.platform.width();
+    let limit = 10;
+    if (wrapper_height < 700 && wrapper_width < 600) {
+      limit = 5;
+    }
     this.loading = true;
-    let sub = this.firebaseSvc.getDocumentsByCollection(collection).subscribe({
-      next: (res: any[]) => {
-        console.log(res);
-        this.weights = res;
-        sub.unsubscribe();
+    this.limit = limit;
+
+    let sub = this.weightSvc.getWeights(limit).subscribe({
+      next: (res) => {
+        let weights: any[] = [];
+        if (res.docs.length !== 0) {
+          this.lastInResponse = res.docs[res.docs.length - 1];
+        }
+        for (let data of res.docs) {
+          const docData: any = data.data();
+          weights.push({
+            id: data.id,
+            ...docData,
+          });
+        }
+
+        this.weights = weights;
         this.loading = false;
+        sub.unsubscribe();
       },
+      error: () => {},
       complete: () => {
         sub.unsubscribe();
-        this.loading = false;
       },
     });
+  }
+
+  nextData(event) {
+    if (this.disable_next) {
+      (event as InfiniteScrollCustomEvent).target.complete();
+      return;
+    }
+
+    let sub = this.weightSvc
+      .getNextWeights(this.limit, this.lastInResponse)
+      .subscribe({
+        next: (res) => {
+          let weights: any[] = [];
+
+          if (res.docs.length !== 0) {
+            this.lastInResponse = res.docs[res.docs.length - 1];
+          }
+
+          for (let data of res.docs) {
+            const docData: any = data.data();
+            weights.push({
+              id: data.id,
+              ...docData,
+            });
+          }
+
+          this.weights = [...this.weights, ...weights];
+
+          if (res.docs.length < this.limit) {
+            this.disable_next = true;
+          }
+          sub.unsubscribe();
+
+          setTimeout(() => {
+            (event as InfiniteScrollCustomEvent).target.complete();
+          }, 500);
+        },
+        error: () => {},
+        complete: () => {
+          sub.unsubscribe();
+        },
+      });
   }
 
   async addOrUpdateWeight(weight?: Weight) {

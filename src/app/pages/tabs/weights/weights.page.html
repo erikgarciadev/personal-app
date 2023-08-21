@@ -46,6 +46,9 @@
         </ion-card>
       </ion-col>
     </ion-row>
+    <ion-infinite-scroll (ionInfinite)="nextData($event)">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
     <ion-row *ngIf="!loading && !weights.length">
       <ion-col size="12" class="ion-text-center">
         <ion-icon size="large" name="create-outline"></ion-icon>
