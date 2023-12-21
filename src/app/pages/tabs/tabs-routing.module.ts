@@ -24,6 +24,22 @@ const routes: Routes = [
       },
     ],
   },
+  {
+    path: '',
+    component: TabsPage,
+    children: [
+      {
+        path: '',
+        redirectTo: 'finance',
+        pathMatch: 'full',
+      },
+      {
+        path: 'finance',
+        loadChildren: () =>
+          import('./finance/finance.module').then((m) => m.FinancePageModule),
+      },
+    ],
+  },
 ];
 
 @NgModule({

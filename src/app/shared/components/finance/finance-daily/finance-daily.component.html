@@ -1,0 +1,79 @@
+<div class="flex justify-end">
+  <ion-button (click)="addOrUpdateDailyFinance()" class="ion-margin" mode="ios">
+    Agregar Ingreso o Gasto
+    <ion-icon slot="end" name="add-circle-outline"></ion-icon>
+  </ion-button>
+</div>
+<ion-grid>
+  <ion-row *ngIf="!loading">
+    <ion-col
+      *ngFor="let dailyFinance of dailiesFinance"
+      size-lg="4"
+      size-md="6"
+      size-sm="6"
+      size="12"
+    >
+      <ion-card class="p-2 mt-0" mode="ios">
+        <div class="flex items-center gap-2 mb-2">
+          <ion-icon size="large" color="success" name="cash"></ion-icon>
+          <span class="font-bold text-lg">
+            Monto :
+            {{ dailyFinance.amount }}
+          </span>
+        </div>
+
+        <p *ngIf="dailyFinance.createdAt" class="text-sm">
+          <b>Fecha de registro :</b>
+          {{ dailyFinance.createdAt?.toDate() | date : "yyyy/MM/dd h:mm:ss a" }}
+        </p>
+        <p class="text-sm flex items-center gap-2">
+          <b>Tipo :</b>
+
+          {{ getTextType(dailyFinance.type) }}
+
+          <ion-icon
+            *ngIf="dailyFinance.type === 'expense'"
+            color="danger"
+            name="arrow-down"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="dailyFinance.type === 'income'"
+            color="success"
+            name="arrow-up"
+          ></ion-icon>
+        </p>
+        <div class="flex justify-end">
+          <ion-button
+            (click)="addOrUpdateDailyFinance(dailyFinance)"
+            class="task-btn"
+            mode="ios"
+            size="small"
+          >
+            Editar
+            <ion-icon slot="end" name="pencil-outline"></ion-icon>
+          </ion-button>
+
+          <ion-button
+            (click)="confirmDeleteDailyFinance(dailyFinance)"
+            class="task-btn"
+            mode="ios"
+            color="danger"
+            size="small"
+          >
+            Eliminar
+            <ion-icon slot="end" name="trash-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+  <ion-infinite-scroll (ionInfinite)="nextData($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+  <ion-row *ngIf="!loading && !dailiesFinance.length">
+    <ion-col size="12" class="ion-text-center">
+      <ion-icon size="large" name="create-outline"></ion-icon>
+      <h4 class="font-semibold text-2xl">No hay registros</h4>
+    </ion-col>
+  </ion-row>
+</ion-grid>

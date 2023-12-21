@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -35,5 +35,9 @@ export class FirebaseService {
 
   deleteDocument(path: string) {
     return this.db.doc(path).delete();
+  }
+
+  getList(path: any, callbackRef?: QueryFn) {
+    return this.db.collection(path, callbackRef).get();
   }
 }

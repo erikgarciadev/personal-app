@@ -1,0 +1,49 @@
+<ion-content color="white">
+  <app-header [title]="dailyFinance ? 'Actualizar Registro' : 'Nuevo Registro'">
+  </app-header>
+
+  <app-custom-input
+    type="number"
+    [control]="form.controls.amount"
+    label="Monto"
+  ></app-custom-input>
+  <div
+    class="validators"
+    *ngIf="form.controls.amount.errors && form.controls.amount.dirty"
+  >
+    <div *ngIf="form.controls.amount.errors?.['required']">
+      Este campo es requerido
+    </div>
+    <div *ngIf="form.controls.amount.errors?.['min']">
+      Este campo debe tener un valor minimo de 0
+    </div>
+  </div>
+  <ion-item class="ion-margin-vertical">
+    <ion-label position="floating">Descripción</ion-label>
+    <ion-textarea type="text" [formControl]="form.controls.description" />
+  </ion-item>
+  <ion-item>
+    <ion-select
+      [formControl]="form.controls.type"
+      label="Tipo"
+      label-placement="floating"
+    >
+      <ion-select-option *ngFor="let type of types" value="{{ type.value }}">{{
+        type.label
+      }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+</ion-content>
+<ion-footer>
+  <div class="ion-text-center">
+    <ion-button
+      class="ion-margin"
+      mode="ios"
+      shape="round"
+      (click)="submit()"
+      [disabled]="form.invalid"
+    >
+      {{ dailyFinance ? "Guardar Cambios" : "Crear Registro" }}
+    </ion-button>
+  </div>
+</ion-footer>

@@ -1,0 +1,25 @@
+<ion-content>
+  <app-header title="Historial Financiero" />
+
+  <div class="flex gap-3 p-3">
+    <app-badge
+      *ngFor="let option of optionsFrequencies"
+      label="{{option.label}}"
+      [active]="option.value === selectedFrequency"
+      (click)="handleSelectFrequency(option.value)"
+    />
+  </div>
+  <div class="px-3">
+    <div *ngIf="selectedFrequency === 'daily'">
+      <app-finance-daily />
+    </div>
+
+    <div *ngIf="selectedFrequency === 'monthly'">
+      <p>{{selectedFrequency}}</p>
+    </div>
+
+    <div *ngIf="selectedFrequency === 'annual'">
+      <p>{{selectedFrequency}}</p>
+    </div>
+  </div>
+</ion-content>
