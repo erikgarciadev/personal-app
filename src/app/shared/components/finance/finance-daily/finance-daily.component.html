@@ -1,19 +1,33 @@
-<div class="flex justify-end">
-  <ion-button (click)="addOrUpdateDailyFinance()" class="ion-margin" mode="ios">
-    Agregar Ingreso o Gasto
-    <ion-icon slot="end" name="add-circle-outline"></ion-icon>
-  </ion-button>
-</div>
-<ion-grid>
-  <ion-row *ngIf="!loading">
-    <ion-col
-      *ngFor="let dailyFinance of dailiesFinance"
-      size-lg="4"
-      size-md="6"
-      size-sm="6"
-      size="12"
+<div class="flex justify-center md:justify-end">
+  <div class="flex flex-col md:flex-row w-full md:w-auto gap-2">
+    <ion-button
+      (click)="generateMonthlyFinance()"
+      mode="ios"
+      *ngIf="active_btn_montly"
+      class="h-10 w-full md:w-auto"
+      fill="outline"
     >
-      <ion-card class="p-2 mt-0" mode="ios">
+      Generar Historial Mensual
+      <ion-icon slot="end" name="rocket"></ion-icon>
+    </ion-button>
+    <ion-button
+      (click)="addOrUpdateDailyFinance()"
+      class="h-10 w-full md:w-auto"
+      mode="ios"
+    >
+      Agregar Ingreso o Gasto
+      <ion-icon slot="end" name="add-circle-outline"></ion-icon>
+    </ion-button>
+  </div>
+</div>
+<ion-grid class="px-0 py-6">
+  <ion-row *ngIf="!loading">
+    <div class="grid w-full gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <ion-card
+        *ngFor="let dailyFinance of dailiesFinance"
+        class="p-2 m-0"
+        mode="ios"
+      >
         <div class="flex items-center gap-2 mb-2">
           <ion-icon size="large" color="success" name="cash"></ion-icon>
           <span class="font-bold text-lg">
@@ -42,6 +56,11 @@
             name="arrow-up"
           ></ion-icon>
         </p>
+        <p class="text-sm flex items-center gap-2">
+          <b>Categoría :</b>
+
+          {{ getTextCategory(dailyFinance.type, dailyFinance.category) }}
+        </p>
         <div class="flex justify-end">
           <ion-button
             (click)="addOrUpdateDailyFinance(dailyFinance)"
@@ -65,15 +84,21 @@
           </ion-button>
         </div>
       </ion-card>
-    </ion-col>
+    </div>
   </ion-row>
   <ion-infinite-scroll (ionInfinite)="nextData($event)">
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
-  <ion-row *ngIf="!loading && !dailiesFinance.length">
+  <ion-row *ngIf="!loading && !dailiesFinance.length && !error">
     <ion-col size="12" class="ion-text-center">
       <ion-icon size="large" name="create-outline"></ion-icon>
       <h4 class="font-semibold text-2xl">No hay registros</h4>
+    </ion-col>
+  </ion-row>
+  <ion-row *ngIf="!loading && error">
+    <ion-col size="12" class="ion-text-center">
+      <ion-icon name="information-circle-outline" size="large"></ion-icon>
+      <h4 class="font-semibold text-2xl">Ocurrio un error</h4>
     </ion-col>
   </ion-row>
 </ion-grid>

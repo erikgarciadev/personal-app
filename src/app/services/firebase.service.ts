@@ -7,10 +7,18 @@ import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
 export class FirebaseService {
   constructor(private db: AngularFirestore) {}
 
+  get batch() {
+    return this.db.firestore.batch();
+  }
+
   getDocuments(path: string) {
     return this.db.doc(path).valueChanges({
       idField: 'id',
     });
+  }
+
+  getDocRef(collection: string){
+    return this.db.firestore.collection(collection).doc()
   }
 
   getDocumentsByCollection(collection: string) {
@@ -37,7 +45,7 @@ export class FirebaseService {
     return this.db.doc(path).delete();
   }
 
-  getList(path: any, callbackRef?: QueryFn) {
-    return this.db.collection(path, callbackRef).get();
+  getList<T>(path: any, callbackRef?: QueryFn) {
+    return this.db.collection<T>(path, callbackRef).get();
   }
 }

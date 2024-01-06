@@ -1,4 +1,4 @@
-<ion-content color="white">
+<ion-content>
   <app-header [title]="dailyFinance ? 'Actualizar Registro' : 'Nuevo Registro'">
   </app-header>
 
@@ -18,20 +18,36 @@
       Este campo debe tener un valor minimo de 0
     </div>
   </div>
+
   <ion-item class="ion-margin-vertical">
-    <ion-label position="floating">Descripción</ion-label>
-    <ion-textarea type="text" [formControl]="form.controls.description" />
-  </ion-item>
-  <ion-item>
     <ion-select
       [formControl]="form.controls.type"
       label="Tipo"
       label-placement="floating"
+      (ionChange)="handleChangeType($event)"
     >
       <ion-select-option *ngFor="let type of types" value="{{ type.value }}">{{
         type.label
       }}</ion-select-option>
     </ion-select>
+  </ion-item>
+
+  <ion-item class="ion-margin-vertical">
+    <ion-select
+      [formControl]="form.controls.category"
+      label="Categoría"
+      label-placement="floating"
+    >
+      <ion-select-option
+        *ngFor="let category of categories"
+        value="{{ category.value }}"
+        >{{ category.label }}</ion-select-option
+      >
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Descripción</ion-label>
+    <ion-textarea type="text" [formControl]="form.controls.description" />
   </ion-item>
 </ion-content>
 <ion-footer>

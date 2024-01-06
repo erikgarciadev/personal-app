@@ -39,3 +39,31 @@ export const options_types = [
     label: 'Gasto',
   },
 ];
+
+export const income_categories = [
+  { label: 'Salario', value: 'salary' },
+  { label: 'Ingresos Adicionales', value: 'additional_income' },
+  { label: 'Inversiones', value: 'investments' },
+  { label: 'Negocio Propio', value: 'own_business' },
+  { label: 'Alquileres', value: 'rentals' },
+  { label: 'Subsidios y Ayudas', value: 'subsidies_and_assistance' },
+  { label: 'Regalías', value: 'royalties' },
+  { label: 'Ventas de Bienes', value: 'goods_sales' },
+  { label: 'Bonificaciones', value: 'bonuses' },
+  { label: 'Otros', value: 'other' },
+];
+
+export const expense_categories = [
+  { label: 'Alimentación', value: 'food' },
+  { label: 'Vivienda', value: 'housing' },
+  { label: 'Transporte', value: 'transportation' },
+  { label: 'Entretenimiento', value: 'entertainment' },
+  { label: 'Salud', value: 'health' },
+  { label: 'Educación', value: 'education' },
+  { label: 'Ropa y Accesorios', value: 'clothing_and_accessories' },
+  { label: 'Tecnología', value: 'technology' },
+  { label: 'Viajes', value: 'travel' },
+  { label: 'Deudas', value: 'debts' },
+  { label: 'Donación', value: 'donation' },
+  { label: 'Otros', value: 'other' },
+];

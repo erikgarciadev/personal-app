@@ -1,10 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { DailyFinance } from 'src/app/models/finance.model';
 import { UtilsService } from 'src/app/services/utils.service';
 import { AddUpdateDailyComponent } from './add-update-daily/add-update-daily.component';
 import { InfiniteScrollCustomEvent, Platform } from '@ionic/angular';
 import { FinanceService } from 'src/app/services/finance.service';
-import { FREQUENCIES, TYPES_FINANCE } from 'src/app/utils/constants';
+import {
+  FREQUENCIES,
+  TYPES_FINANCE,
+  expense_categories,
+  income_categories,
+} from 'src/app/utils/constants';
 
 @Component({
   selector: 'app-finance-daily',
@@ -17,6 +28,8 @@ export class FinanceDailyComponent implements OnInit {
   loading = false;
   limit = 10;
   disable_next = false;
+  active_btn_montly = false;
+  error = false;
 
   lastInResponse: any;
 
@@ -28,6 +41,31 @@ export class FinanceDailyComponent implements OnInit {
 
   ngOnInit() {
     this.getDailiesFinance();
+  }
+
+  async generateMonthlyFinance() {
+    try {
+      console.log('aca');
+      await this.financeSvc.generateMonthlyFinance();
+    } catch (error) {
+      console.log(error);
+    }
+    // this.getDailiesFinance();
+  }
+
+  verifyDailiesFinance() {
+    for (const dailyFinance of this.dailiesFinance) {
+      const dateDailyFinance = new Date(dailyFinance.createdAt.seconds * 1000);
+      const today = new Date();
+
+      const monthDailyFinance = dateDailyFinance.getMonth();
+      const monthCurrent = today.getMonth();
+      if (monthDailyFinance !== monthCurrent) {
+        this.active_btn_montly = true;
+        return;
+      }
+    }
+    this.active_btn_montly = false;
   }
 
   getDailiesFinance() {
@@ -55,10 +93,16 @@ export class FinanceDailyComponent implements OnInit {
         }
 
         this.dailiesFinance = dailies;
+        this.verifyDailiesFinance();
         this.loading = false;
         sub.unsubscribe();
       },
-      error: () => {},
+      error: (error) => {
+        this.error = true;
+        this.loading = false;
+
+        console.log(error);
+      },
       complete: () => {
         sub.unsubscribe();
       },
@@ -90,6 +134,7 @@ export class FinanceDailyComponent implements OnInit {
           }
 
           this.dailiesFinance = [...this.dailiesFinance, ...dailies];
+          this.verifyDailiesFinance();
 
           if (res.docs.length < this.limit) {
             this.disable_next = true;
@@ -100,7 +145,10 @@ export class FinanceDailyComponent implements OnInit {
             (event as InfiniteScrollCustomEvent).target.complete();
           }, 500);
         },
-        error: () => {},
+        error: () => {
+          this.error = true;
+          this.loading = false;
+        },
         complete: () => {
           sub.unsubscribe();
         },
@@ -170,5 +218,15 @@ export class FinanceDailyComponent implements OnInit {
 
   getTextType(type: string) {
     return type === TYPES_FINANCE.EXPENSE ? 'Gasto' : 'Ingreso';
+  }
+
+  getTextCategory(type: string, category: string) {
+    const categories =
+      TYPES_FINANCE.EXPENSE === type ? expense_categories : income_categories;
+    const findCategory = categories.find(
+      (_category) => _category.value === category
+    );
+    if (findCategory) return findCategory.label;
+    return '-';
   }
 }

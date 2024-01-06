@@ -9,7 +9,12 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "build:prod": "ionic build --prod && npx cap sync",
+    "open:android": "npx cap open android"
+  },
+  "engines": {
+    "node": "18.16.0"
   },
   "private": true,
   "dependencies": {

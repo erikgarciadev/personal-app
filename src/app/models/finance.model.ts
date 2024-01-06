@@ -9,14 +9,19 @@ export interface DailyFinance extends Finance {
   amount: number;
   type: string;
   description: string;
+  category: string;
 }
+
+export interface OmitDailyFinance
+  extends Omit<DailyFinance, 'id' | 'updatedAt'> {}
 
 export interface MonthlyFinance extends Finance {
   amount: number;
-  dailiesFinance: DailyFinance[];
+  dailiesFinance: OmitDailyFinance[];
   url: string;
   income: number;
   expense: number;
+  transactionDate?: any;
 }
 
 export interface AnualFinance extends Finance {

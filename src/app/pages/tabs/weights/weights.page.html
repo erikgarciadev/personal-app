@@ -6,16 +6,10 @@
       <ion-icon slot="end" name="add-circle-outline"></ion-icon>
     </ion-button>
   </div>
-  <ion-grid>
+  <ion-grid class="px-3 py-6">
     <ion-row *ngIf="!loading">
-      <ion-col
-        *ngFor="let weight of weights"
-        size-lg="4"
-        size-md="6"
-        size-sm="6"
-        size="12"
-      >
-        <ion-card class="p-2 mt-0" mode="ios">
+      <div class="grid w-full gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <ion-card *ngFor="let weight of weights" class="p-2 m-0" mode="ios">
           <span class="font-bold text-lg"> {{weight.weight}} kg </span>
           <p *ngIf="weight.createdAt" class="text-xs">
             <b>Fecha de registro :</b>
@@ -44,7 +38,7 @@
             </ion-button>
           </div>
         </ion-card>
-      </ion-col>
+      </div>
     </ion-row>
     <ion-infinite-scroll (ionInfinite)="nextData($event)">
       <ion-infinite-scroll-content></ion-infinite-scroll-content>

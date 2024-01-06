@@ -4,8 +4,10 @@ import { DailyFinance } from 'src/app/models/finance.model';
 import { FinanceService } from 'src/app/services/finance.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import {
-  COLLECTIONS,
   FREQUENCIES,
+  TYPES_FINANCE,
+  expense_categories,
+  income_categories,
   options_types,
 } from 'src/app/utils/constants';
 
@@ -18,6 +20,7 @@ export class AddUpdateDailyComponent implements OnInit {
   @Input() dailyFinance: DailyFinance;
 
   types = options_types;
+  categories = [];
 
   form = new FormGroup({
     id: new FormControl(''),
@@ -25,6 +28,7 @@ export class AddUpdateDailyComponent implements OnInit {
     amount: new FormControl(0, [Validators.required, Validators.min(0)]),
     frequency: new FormControl(FREQUENCIES.DAILY as string),
     type: new FormControl('', [Validators.required]),
+    category: new FormControl('', [Validators.required]),
     createdAt: new FormControl(''),
     updatedAt: new FormControl(''),
   });
@@ -44,6 +48,16 @@ export class AddUpdateDailyComponent implements OnInit {
     }
   }
 
+  handleChangeType(event: any) {
+    const value = event.target.value;
+    if (value === TYPES_FINANCE.EXPENSE) {
+      this.categories = expense_categories;
+      return;
+    }
+
+    this.categories = income_categories;
+  }
+
   submit() {
     if (!this.form.valid) return;
 
@@ -58,6 +72,7 @@ export class AddUpdateDailyComponent implements OnInit {
     return {
       amount: Number(this.form.value.amount),
       description: this.form.value.description,
+      category: this.form.value.category,
       type: this.form.value.type,
       frequency: this.form.value.frequency,
     };
