@@ -17,8 +17,8 @@ export class FirebaseService {
     });
   }
 
-  getDocRef(collection: string){
-    return this.db.firestore.collection(collection).doc()
+  getDocRef(collection: string) {
+    return this.db.firestore.collection(collection).doc();
   }
 
   getDocumentsByCollection(collection: string) {

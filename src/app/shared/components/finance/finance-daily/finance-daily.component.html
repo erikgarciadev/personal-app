@@ -43,7 +43,7 @@
         <p class="text-sm flex items-center gap-2">
           <b>Tipo :</b>
 
-          {{ getTextType(dailyFinance.type) }}
+          {{ _getTextType(dailyFinance.type) }}
 
           <ion-icon
             *ngIf="dailyFinance.type === 'expense'"
@@ -59,7 +59,7 @@
         <p class="text-sm flex items-center gap-2">
           <b>Categoría :</b>
 
-          {{ getTextCategory(dailyFinance.type, dailyFinance.category) }}
+          {{ _getTextCategory(dailyFinance.type, dailyFinance.category) }}
         </p>
         <div class="flex justify-end">
           <ion-button

@@ -45,17 +45,22 @@ export class AddUpdateDailyComponent implements OnInit {
         ...this.dailyFinance,
       });
       this.form.updateValueAndValidity();
+      this.updateCategories(this.dailyFinance.type);
     }
   }
 
-  handleChangeType(event: any) {
-    const value = event.target.value;
-    if (value === TYPES_FINANCE.EXPENSE) {
+  updateCategories(typeFinance: string) {
+    if (typeFinance === TYPES_FINANCE.EXPENSE) {
       this.categories = expense_categories;
       return;
     }
 
     this.categories = income_categories;
+  }
+
+  handleChangeType(event: any) {
+    const value = event.target.value;
+    this.updateCategories(value);
   }
 
   submit() {

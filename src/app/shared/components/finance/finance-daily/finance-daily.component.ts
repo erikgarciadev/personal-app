@@ -10,12 +10,8 @@ import { UtilsService } from 'src/app/services/utils.service';
 import { AddUpdateDailyComponent } from './add-update-daily/add-update-daily.component';
 import { InfiniteScrollCustomEvent, Platform } from '@ionic/angular';
 import { FinanceService } from 'src/app/services/finance.service';
-import {
-  FREQUENCIES,
-  TYPES_FINANCE,
-  expense_categories,
-  income_categories,
-} from 'src/app/utils/constants';
+import { FREQUENCIES } from 'src/app/utils/constants';
+import { getTextCategory, getTextType } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-finance-daily',
@@ -45,12 +41,28 @@ export class FinanceDailyComponent implements OnInit {
 
   async generateMonthlyFinance() {
     try {
-      console.log('aca');
+      await this.utilsSvc.presentLoading({});
       await this.financeSvc.generateMonthlyFinance();
+      await this.utilsSvc.presentToast({
+        message: 'Se genero el Historial Mensual exitosamente',
+        color: 'success',
+        icon: 'checkmark-circle-outline',
+        duration: 1500,
+      });
+      await this.utilsSvc.dismissLoading();
+
+      this.getDailiesFinance();
     } catch (error) {
+      await this.utilsSvc.presentToast({
+        message:
+          'Ocurrio un error al generar el Historial Mensual, vuelva a intentar',
+        color: 'warning',
+        icon: 'alert-circle-outline',
+        duration: 1500,
+      });
+      await this.utilsSvc.dismissLoading();
       console.log(error);
     }
-    // this.getDailiesFinance();
   }
 
   verifyDailiesFinance() {
@@ -216,17 +228,11 @@ export class FinanceDailyComponent implements OnInit {
     );
   }
 
-  getTextType(type: string) {
-    return type === TYPES_FINANCE.EXPENSE ? 'Gasto' : 'Ingreso';
+  _getTextType(type: string) {
+    return getTextType(type);
   }
 
-  getTextCategory(type: string, category: string) {
-    const categories =
-      TYPES_FINANCE.EXPENSE === type ? expense_categories : income_categories;
-    const findCategory = categories.find(
-      (_category) => _category.value === category
-    );
-    if (findCategory) return findCategory.label;
-    return '-';
+  _getTextCategory(type: string, category: string) {
+    return getTextCategory(type, category);
   }
 }

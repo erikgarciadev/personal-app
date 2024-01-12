@@ -7,17 +7,28 @@ import {
   MonthlyFinance,
   OmitDailyFinance,
 } from '../models/finance.model';
-import { getFirstDayLastMonth } from '../utils/util';
+import {
+  getFirstDayLastMonth,
+  getTextCategory,
+  getTextType,
+} from '../utils/util';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as moment from 'moment';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FinanceService {
-  constructor(private firebaseSvc: FirebaseService) {}
+  constructor(
+    private firebaseSvc: FirebaseService,
+    private storageSvc: StorageService
+  ) {}
 
   path = COLLECTIONS.FINANCE;
 
-  getDataMonthlyFinance(dailiesFinance: OmitDailyFinance[]) {
+  getDataMonthlyFinance(dailiesFinance: OmitDailyFinance[], url: string) {
     let income = 0;
     let expense = 0;
     let amount = 0;
@@ -40,7 +51,7 @@ export class FinanceService {
     const monthlyFinance: Omit<MonthlyFinance, 'id' | 'updatedAt'> = {
       dailiesFinance,
       amount,
-      url: '',
+      url,
       income,
       expense,
       frequency: FREQUENCIES.MONTHLY,
@@ -55,35 +66,62 @@ export class FinanceService {
     const res = await this.getAllFinancesByLastMonth();
     const dailies: OmitDailyFinance[] = [];
 
-    const batch = this.firebaseSvc.batch;
+    let dataBody = [];
 
     for (const data of res.docs) {
       const dataDailyFinance = data.data();
 
+      const { amount, createdAt, frequency, description, type, category } =
+        dataDailyFinance;
+
       dailies.push({
-        amount: dataDailyFinance.amount,
-        createdAt: dataDailyFinance.createdAt,
-        frequency: dataDailyFinance.frequency,
-        description: dataDailyFinance.description,
-        type: dataDailyFinance.type,
-        category: dataDailyFinance.category ?? '',
+        amount,
+        createdAt,
+        frequency,
+        description,
+        type,
+        category: category ?? '',
       });
+
+      dataBody.push([
+        amount,
+        getTextType(type),
+        getTextCategory(type, category),
+        description,
+        moment(createdAt?.toDate()).format('DD/MM/YYYY HH:mm:ss') ?? '-',
+      ]);
     }
 
-    const monthlyFinance = this.getDataMonthlyFinance(dailies);
+    const batch = this.firebaseSvc.batch;
 
-    console.log('m', monthlyFinance);
+    const doc = new jsPDF();
 
-    // snapshot.docs.forEach((doc) => {
-    //   // Eliminar documento actual
-    //   batch.delete(doc.ref);
-    // });
+    autoTable(doc, {
+      headStyles: {
+        fillColor: '#3880ff',
+      },
+      head: [['Monto', 'Tipo', 'Categoría', 'Descripción', 'Fecha']],
+      body: [...dataBody],
+    });
 
-    // const newDocRef = this.firebaseSvc.getDocRef(this.path);
-    // batch.set(newDocRef, monthlyFinance);
+    const namePdf = 'table.pdf';
+    const pdfData = doc.output('blob');
 
-    // // // Ejecutar el lote
-    // return batch.commit();
+    const url = await this.storageSvc.uploadFile(namePdf, pdfData);
+
+    const monthlyFinance = this.getDataMonthlyFinance(dailies, url);
+
+    res.docs.forEach((doc) => {
+      // Eliminar documento actual
+      batch.delete(doc.ref);
+    });
+
+    // crear montglyFinance
+    const newDocRef = this.firebaseSvc.getDocRef(this.path);
+    batch.set(newDocRef, monthlyFinance);
+
+    // Ejecutar el lote
+    return await batch.commit();
   }
 
   async getAllFinancesByLastMonth() {
